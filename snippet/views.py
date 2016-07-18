@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from rest_framework import generics
+from rest_framework import permissions
 from snippet.models import Snippet
 from snippet.serializers import SnippetSerializer, UserSerializer
 from django.contrib.auth.models import User
@@ -21,7 +22,8 @@ class SnippetList(generics.ListCreateAPIView):
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
-    
+    # 确保了只有认证用户才有读写权限，未认证用户则只有只读权限
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     def perform_create(self, serializer):
         """
             perform_create() 这个
@@ -37,3 +39,4 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
