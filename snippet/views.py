@@ -2,8 +2,17 @@
 
 from rest_framework import generics
 from snippet.models import Snippet
-from snippet.serializers import SnippetSerializer
+from snippet.serializers import SnippetSerializer, UserSerializer
+from django.contrib.auth.models import User
 
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 class SnippetList(generics.ListCreateAPIView):
     """
@@ -12,13 +21,14 @@ class SnippetList(generics.ListCreateAPIView):
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
+    
+    def perform_create(self, serializer):
+        """
+            perform_create() 这个
+            方法准许我们修改实例如何被保存、处理任何由request或requested URL传递进来
+            的隐含数据
+        """
+        serializer.save(owner=self.request.user)
 
 class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """
