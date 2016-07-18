@@ -21,6 +21,8 @@ from snippet import views
 
 
 urlpatterns = [
+    url(r'^$', views.api_root),
+    url(r'^snippets/(?P<pk>\d+)/highlight/$', views.SnippetHighlight.as_view()),
     url(r'^users/$', views.UserList.as_view()),
     url(r'^users/(?P<pk>\d+)/$', views.UserDetail.as_view()),
     url(r'^snippets/$', views.SnippetList.as_view()),
