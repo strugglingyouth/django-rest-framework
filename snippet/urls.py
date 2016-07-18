@@ -1,3 +1,5 @@
+# coding:utf-8
+
 """snippets URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -26,3 +28,9 @@ urlpatterns = [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+# 登录功能
+urlpatterns += [
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    ]
+

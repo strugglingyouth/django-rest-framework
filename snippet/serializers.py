@@ -25,7 +25,8 @@ class SnippetSerializer(serializers.ModelSerializer):
     # source 决定了显示user的哪个参数值，并且可以 使用user的任何属性
     # ReadOnlyField 只读属性，序列化的时候展示，反序列化的时候不会被修改
     # 也可以使用 CharField(read_only=True) 来替代它
-    owner = serializers.ReadOnlyField(source='owner.username')
+    # owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.CharField(read_only=True, source='owner.username')
     class Meta:
         model = Snippet
         fields = ('id', 'title', 'code', 'linenos', 'language', 'style', 'owner')

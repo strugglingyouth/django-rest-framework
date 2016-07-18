@@ -24,7 +24,7 @@ class Snippet(models.Model):
     linenos = models.BooleanField(default=False)
     language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
     style = models.CharField(choices=STYLE_CHOICES, default='friendly', max_length=100)
-    owner = models.ForeignKey('auth.User', related_name='snippets')
+    owner = models.ForeignKey('auth.User', related_name='snippet')
     highlighted = models.TextField()  #高亮 HTML 代码段
     
     class Meta:
@@ -35,13 +35,14 @@ class Snippet(models.Model):
 
     def save(self, *args, **kwargs):
         """
+            使用 pygments 来创建高亮的 HTML 代码
         """
         lexer = get_lexer_by_name(self.language)
         linenos = self.linenos and 'table' or False
         options = self.title and {'title': self.title} or {}
         formatter = HtmlFormatter(style=self.style, linenos=linenos, full=True, **options)
         self.highlighted = highlight(self.code, lexer, formatter)
-        super(Snippet, self).__init__(*args, **kwargs)
+        super(Snippet, self).save(*args, **kwargs)
 
 
     
