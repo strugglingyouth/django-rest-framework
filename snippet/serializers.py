@@ -4,11 +4,11 @@
 from rest_framework import serializers
 from snippet.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 
-
+""" 使用 Serializer 类，类似于 Form 类
 class SnippetSerializer(serializers.Serializer):
-    """
+    '''
         序列化，反序列化字段
-    """
+    '''
     pk = serializers.IntegerField(read_only=True)
     title = serializers.CharField(required=False, allow_blank=True,max_length=100)
     code = serializers.CharField(style={'base_template':'textarea.html'})
@@ -17,15 +17,15 @@ class SnippetSerializer(serializers.Serializer):
     style = serializers.ChoiceField(choices=STYLE_CHOICES, default='friendly')
     
     def create(self, validated_data):
-        """
+        '''
             数据合法就创建并返回一个 snippet 实例
-        """
+        '''
         return Snippet.objects.create(**validated_data)
         
     def update(self, instance, validated_data):
-        """
+        '''
             数据合法并存在时则更新数据
-        """
+        '''
         
         instance.title = validated_data.get('title', instance.title)
         instance.code = validated_data.get('code', instance.code)
@@ -33,8 +33,28 @@ class SnippetSerializer(serializers.Serializer):
         instance.language = validated_data.get('language', instance.language)
         instance.style = validated_data.get('style', instance.style)
 
-        instance.save()   # 保存实例
+        instance.save()    保存实例
         return instance
+"""
+
+
+class SnippetSerializer(serializers.ModelSerializer):
+    """
+        使用 ModelSerializer 类，类似于 ModelForm 类
+        自动检测字段
+        简单定义了 create() 和 update() 方法
+    """
+    class Meta:
+        model = Snippet
+        fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+
+
+
+
+
+
+
+
 
 
 

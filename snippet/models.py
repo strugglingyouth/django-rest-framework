@@ -22,3 +22,6 @@ class Snippet(models.Model):
 
     class Meta:
         ordering = ('created',)
+
+    def __unicode__(self):
+        return self.code
