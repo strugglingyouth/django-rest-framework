@@ -1,6 +1,5 @@
 # coding:utf-8
 
-from rest_framework import generics
 from rest_framework import permissions
 from snippet.models import Snippet
 from snippet.serializers import SnippetSerializer, UserSerializer
@@ -8,27 +7,34 @@ from django.contrib.auth.models import User
 from snippet.permissions import IsOwnerOrReadOnly
 from rest_framework.decorators import api_view 
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework import renderers
+from rest_framework import viewsets
+from rest_framework.decorators import detail_route
 
 
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-class SnippetList(generics.ListCreateAPIView):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
-        展示所有的 snippet 或者新创建的 snippet
-        generics.ListCeateAPIView 提供了 get，post，create，list 等方法 
+        viewsets 自动提供 list（） 和 detail（） 方法
+        ReadOnlyMoldeViewSet 提供只读的方法 
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class SnippetViewSet(viewsets.ModelViewSet):
+    """
+        viewset 提供 list`, `create`, `retrieve` `update` and `destroy` 方法
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     # 确保了只有认证用户才有读写权限，未认证用户则只有只读权限
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
+
+    # 使用 detail_route 来创建自定义的动作
+    @detail_route(renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
+
     def perform_create(self, serializer):
         """
             perform_create() 这个
@@ -36,15 +42,9 @@ class SnippetList(generics.ListCreateAPIView):
             的隐含数据
         """
         serializer.save(owner=self.request.user)
+    
 
-class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-    """
-        修改或删除一个 snippet
-        generics.RetrieveUpdateDestroyAPIView 提供了 delete,get, patch, put 等方法
-    """
-    queryset = Snippet.objects.all()
-    serializer_class = SnippetSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly, )
+
 
 
 
@@ -57,21 +57,6 @@ def api_root(request, format=None):
         'users': reverse('user-list', request=request, format=format),
         'snippets': reverse('snippet-list', request=request, format=format)
     })
-
-
-class SnippetHighlight(generics.GenericAPIView):
-    """
-        创建语法高亮视图
-    """
-    queryset = Snippet.objects.all()
-    renderers_classes = (renderers.StaticHTMLRenderer, )
-
-    def get(self, request, *args, **kwargs):
-        snippet = self.get_object()
-        return Response(snippet.highlighted)
-
-
-
 
 
 
