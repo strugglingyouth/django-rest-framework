@@ -48,15 +48,15 @@ class SnippetViewSet(viewsets.ModelViewSet):
 
 
 
-@api_view(['GET'])
-def api_root(request, format=None):
-    """
-        使用 reverse 函数返回完全限定的 url
-    """
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'snippets': reverse('snippet-list', request=request, format=format)
-    })
+#@api_view(['GET'])
+#def api_root(request, format=None):
+    #"""
+        #使用 reverse 函数返回完全限定的 url
+    #"""
+    #return Response({
+        #'users': reverse('user-list', request=request, format=format),
+        #'snippets': reverse('snippet-list', request=request, format=format)
+    #})
 
 
 
