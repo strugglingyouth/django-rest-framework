@@ -5,18 +5,18 @@ from rest_framework import serializers
 from snippet.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 from django.contrib.auth.models import User
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     """
         snippets和用户是一种反向关联，默认情况下不会包含
         在 ModelSerializer 类
     """
-    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Snippet.objects.all())
+    snippet = serializers.HyperlinkedRelatedField(many=True, view_name='snippet-detail', read_only=True)
     class Meta:
         model = User
-        fields = ('id', 'username', 'snippets')
+        fields = ('url', 'username', 'snippet')
 
 
-class SnippetSerializer(serializers.ModelSerializer):
+class SnippetSerializer(serializers.HyperlinkedModelSerializer):
     """
         使用 ModelSerializer 类，类似于 ModelForm 类
         自动检测字段
@@ -27,9 +27,10 @@ class SnippetSerializer(serializers.ModelSerializer):
     # 也可以使用 CharField(read_only=True) 来替代它
     # owner = serializers.ReadOnlyField(source='owner.username')
     owner = serializers.CharField(read_only=True, source='owner.username')
+    highlight = serializers.HyperlinkedIdentityField(view_name='snippet-highlight', format='html')
     class Meta:
         model = Snippet
-        fields = ('id', 'title', 'code', 'linenos', 'language', 'style', 'owner')
+        fields = ('url', 'highlight', 'title', 'code', 'linenos', 'language', 'style', 'owner')
 
 
 
